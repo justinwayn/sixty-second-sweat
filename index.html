@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#AEE1F9">
+<title>60-Second Sweat — One Button. One Minute.</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💦</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#AEE1F9;
+    --sky-soft:#D8F1FD;
+    --cream:#F8EBC8;
+    --tan:#C9A877;
+    --ink:#5B4636;
+    --yellow:#FFBE0B;
+    --orange:#E8890C;
+    --orange-text:#8F4205;
+    --number:#8F4205;
+    --green:#237A36;
+    --green-dark:#1B6129;
+    --pink:#F6A8B8;
+    --white:#FFFFFF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Baloo 2','Comic Sans MS','Chalkboard SE',system-ui,sans-serif;
+    background:var(--sky);
+    color:var(--ink);
+    overflow:hidden;
+    touch-action:manipulation;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  .cloud{position:fixed;background:var(--white);opacity:.45;border-radius:999px;pointer-events:none;z-index:0}
+  .cloud::before,.cloud::after{content:"";position:absolute;background:var(--white);border-radius:50%}
+  .cloud-a{width:150px;height:44px;top:9%;left:-30px}
+  .cloud-a::before{width:64px;height:64px;top:-30px;left:22px}
+  .cloud-a::after{width:44px;height:44px;top:-18px;left:78px}
+  .cloud-b{width:110px;height:34px;top:20%;right:-24px}
+  .cloud-b::before{width:48px;height:48px;top:-22px;left:16px}
+  .cloud-b::after{width:34px;height:34px;top:-13px;left:58px}
+  .cloud-c{width:190px;height:50px;bottom:6%;right:-50px;opacity:.3}
+  .cloud-c::before{width:76px;height:76px;top:-36px;left:30px}
+  .cloud-c::after{width:52px;height:52px;top:-22px;left:100px}
+
+  #app{position:relative;z-index:1;height:100dvh;display:flex;flex-direction:column;align-items:center;padding:14px 16px calc(16px + env(safe-area-inset-bottom));max-width:480px;margin:0 auto}
+
+  header{width:100%;display:flex;align-items:center;justify-content:space-between;min-height:44px}
+  .wordmark{font-weight:800;font-size:19px;letter-spacing:.4px;color:var(--ink)}
+  .wordmark .num{color:var(--orange-text)}
+  .streak-pill{display:flex;align-items:center;gap:5px;background:var(--white);border-radius:999px;padding:6px 14px 6px 10px;font-weight:800;font-size:19px;box-shadow:0 3px 10px rgba(91,70,54,.15)}
+  .streak-pill .flame{font-size:19px;line-height:1}
+
+  #stage{position:relative;width:min(80vw,330px);margin-top:2px}
+  #stage svg{width:100%;height:auto;display:block;overflow:visible}
+
+  #bigNumber{
+    min-height:118px;display:flex;align-items:center;justify-content:center;
+    font-size:clamp(84px,26vw,118px);font-weight:800;line-height:1;color:var(--number);
+    -webkit-text-stroke:4px var(--white);
+    text-shadow:0 4px 0 rgba(201,168,119,.55);
+  }
+  #bigNumber.pop{animation:pop .45s ease}
+  @keyframes pop{0%{transform:scale(.4)}55%{transform:scale(1.18)}100%{transform:scale(1)}}
+
+  #moveLabel{min-height:40px;font-size:clamp(24px,7vw,32px);font-weight:800;text-align:center;color:var(--ink);letter-spacing:.3px}
+  #subLabel{min-height:24px;font-size:17px;font-weight:600;text-align:center;color:var(--ink)}
+
+  #progressWrap{width:min(84vw,360px);height:14px;background:rgba(255,255,255,.65);border-radius:999px;overflow:hidden;margin-top:8px;visibility:hidden}
+  #progressBar{height:100%;width:100%;background:var(--green);border-radius:999px;transition:width .12s linear}
+
+  .controls{margin-top:auto;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .big-btn{
+    font-family:inherit;font-weight:800;border:none;cursor:pointer;color:var(--white);
+    background:var(--green);border-radius:999px;
+    font-size:clamp(30px,9vw,42px);padding:18px 54px;min-width:min(78vw,320px);
+    box-shadow:0 8px 22px rgba(35,122,54,.35);
+  }
+  .big-btn:active{transform:scale(.96);background:var(--green-dark)}
+  .door-btn{
+    display:block;text-decoration:none;text-align:center;font-weight:800;color:var(--ink);
+    background:var(--yellow);border-radius:24px;padding:16px 22px;width:min(88vw,360px);
+    font-size:20px;line-height:1.3;box-shadow:0 8px 22px rgba(232,137,12,.35);
+  }
+  .door-btn .door-sub{display:block;font-size:15px;font-weight:600;opacity:.8;margin-top:2px}
+  .door-btn:active{transform:scale(.97)}
+  .round-btn{
+    font-family:inherit;border:none;cursor:pointer;width:62px;height:62px;border-radius:50%;
+    background:var(--white);color:var(--ink);font-size:28px;font-weight:800;
+    box-shadow:0 5px 14px rgba(91,70,54,.2);display:flex;align-items:center;justify-content:center;
+  }
+  .round-btn:active{transform:scale(.93)}
+  #quitBtn{
+    position:fixed;top:calc(12px + env(safe-area-inset-top));right:14px;z-index:5;
+    width:46px;height:46px;font-size:20px;background:rgba(255,255,255,.75);box-shadow:none;
+  }
+  .hidden{display:none !important}
+
+  .streak-hero{display:flex;flex-direction:column;align-items:center;gap:0}
+  .streak-hero .flame-big{font-size:64px;line-height:1}
+  .streak-hero .streak-num{font-size:clamp(64px,20vw,92px);font-weight:800;line-height:1;color:var(--orange-text)}
+  .streak-hero .streak-word{font-size:21px;font-weight:800;letter-spacing:1.5px;color:var(--ink)}
+
+  .confetti{position:fixed;top:-14px;z-index:9;pointer-events:none;border-radius:3px;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(108vh) rotate(680deg)}}
+</style>
+<style>
+  /* ---------- Blob rig ---------- */
+  #blobAll,#upper,#bodyG .anim,#armL .anim,#armR .anim,#footL .anim,#footR .anim,#eyes{
+    transform-box:fill-box;
+  }
+  #bodyG .anim{transform-origin:50% 90%}
+  #armL .anim,#armR .anim{transform-origin:50% 8%}
+  #footL .anim,#footR .anim{transform-origin:50% 50%}
+  #eyes{transform-origin:50% 50%}
+
+  /* idle life: breathing, sway, blink */
+  #stage[data-mode="home"] #bodyG .anim,
+  #stage[data-mode="done"] #bodyG .anim,
+  #stage[data-mode="quit"] #bodyG .anim{animation:breathe 2.2s ease-in-out infinite alternate}
+  #stage[data-mode="home"] #armL .anim{animation:swayL 2.2s ease-in-out infinite alternate}
+  #stage[data-mode="home"] #armR .anim{animation:swayR 2.2s ease-in-out infinite alternate}
+  #eyes{animation:blink 4.2s infinite}
+  @keyframes breathe{from{transform:translateY(0)}to{transform:translateY(-5px)}}
+  @keyframes swayL{from{transform:rotate(5deg)}to{transform:rotate(-4deg)}}
+  @keyframes swayR{from{transform:rotate(-5deg)}to{transform:rotate(4deg)}}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}94%,97%{transform:scaleY(.08)}}
+
+  /* countdown crouch */
+  #stage[data-mode="count"] #bodyG .anim{animation:crouch .8s ease-in-out infinite alternate}
+  #stage[data-mode="count"] #armL .anim{animation:readyL .8s ease-in-out infinite alternate}
+  #stage[data-mode="count"] #armR .anim{animation:readyR .8s ease-in-out infinite alternate}
+  @keyframes crouch{from{transform:translateY(0) scaleY(1)}to{transform:translateY(7px) scaleY(.93)}}
+  @keyframes readyL{from{transform:rotate(14deg)}to{transform:rotate(-16deg)}}
+  @keyframes readyR{from{transform:rotate(-14deg)}to{transform:rotate(16deg)}}
+
+  /* done: happy hops */
+  #stage[data-mode="done"] #blobAll{animation:hop .5s ease-in-out infinite alternate}
+  #stage[data-mode="done"] #armL .anim{animation:cheerL .5s ease-in-out infinite alternate}
+  #stage[data-mode="done"] #armR .anim{animation:cheerR .5s ease-in-out infinite alternate}
+  @keyframes hop{from{transform:translateY(0)}to{transform:translateY(-14px)}}
+  @keyframes cheerL{from{transform:rotate(-128deg)}to{transform:rotate(-162deg)}}
+  @keyframes cheerR{from{transform:rotate(128deg)}to{transform:rotate(162deg)}}
+
+  /* quit: gentle wave */
+  #stage[data-mode="quit"] #armR .anim{animation:wave 1s ease-in-out infinite alternate}
+  @keyframes wave{from{transform:rotate(138deg)}to{transform:rotate(168deg)}}
+
+  /* ---------- props ---------- */
+  #chair,#wall{opacity:0;transition:opacity .3s}
+  #stage[data-move="sittostand"] #chair,#stage[data-move="chairsquat"] #chair{opacity:1}
+  #stage[data-move="wallpush"] #wall{opacity:1}
+
+  /* ---------- moves ---------- */
+  /* march */
+  #stage[data-move="march"] #footL .anim{animation:legUp .34s ease-in-out infinite alternate}
+  #stage[data-move="march"] #footR .anim{animation:legUp .34s ease-in-out infinite alternate-reverse}
+  #stage[data-move="march"] #armL .anim{animation:swing .34s ease-in-out infinite alternate-reverse}
+  #stage[data-move="march"] #armR .anim{animation:swing .34s ease-in-out infinite alternate}
+  #stage[data-move="march"] #bodyG .anim{animation:bob .34s ease-in-out infinite alternate}
+  @keyframes legUp{from{transform:translateY(0)}to{transform:translateY(-17px)}}
+  @keyframes swing{from{transform:rotate(26deg)}to{transform:rotate(-26deg)}}
+  @keyframes bob{from{transform:translateY(0)}to{transform:translateY(-4px)}}
+
+  /* knee lifts */
+  #stage[data-move="kneelifts"] #footL .anim{animation:kneeUp .42s ease-in-out infinite alternate}
+  #stage[data-move="kneelifts"] #footR .anim{animation:kneeUp .42s ease-in-out infinite alternate-reverse}
+  #stage[data-move="kneelifts"] #armL .anim{animation:pump .42s ease-in-out infinite alternate}
+  #stage[data-move="kneelifts"] #armR .anim{animation:pump .42s ease-in-out infinite alternate-reverse}
+  #stage[data-move="kneelifts"] #bodyG .anim{animation:bob .42s ease-in-out infinite alternate}
+  @keyframes kneeUp{from{transform:translateY(0)}to{transform:translateY(-30px)}}
+  @keyframes pump{from{transform:rotate(16deg)}to{transform:rotate(-20deg)}}
+
+  /* wall push-ups */
+  #stage[data-move="wallpush"] #blobAll{transform:translateX(16px)}
+  #stage[data-move="wallpush"] #upper{animation:pushPump .95s ease-in-out infinite}
+  #stage[data-move="wallpush"] #armL .anim{animation:armFwd .95s ease-in-out infinite}
+  #stage[data-move="wallpush"] #armR .anim{animation:armFwd .95s ease-in-out infinite}
+  @keyframes pushPump{0%,100%{transform:translateX(0)}50%{transform:translateX(13px)}}
+  @keyframes armFwd{0%,100%{transform:rotate(-58deg)}50%{transform:rotate(-76deg)}}
+
+  /* sit to stand */
+  #stage[data-move="sittostand"] #upper{animation:sitDip 1.7s ease-in-out infinite}
+  #stage[data-move="sittostand"] #armL .anim{animation:sitArms 1.7s ease-in-out infinite}
+  #stage[data-move="sittostand"] #armR .anim{animation:sitArms 1.7s ease-in-out infinite}
+  @keyframes sitDip{0%,100%{transform:translateY(0)}42%,58%{transform:translateY(37px)}}
+  @keyframes sitArms{0%,100%{transform:rotate(0deg)}42%,58%{transform:rotate(-52deg)}}
+
+  /* chair squats */
+  #stage[data-move="chairsquat"] #upper{animation:squatDip 1.35s ease-in-out infinite}
+  #stage[data-move="chairsquat"] #armL .anim{animation:sitArms 1.35s ease-in-out infinite}
+  #stage[data-move="chairsquat"] #armR .anim{animation:sitArms 1.35s ease-in-out infinite}
+  @keyframes squatDip{0%,100%{transform:translateY(0)}50%{transform:translateY(27px)}}
+
+  /* arm circles */
+  #stage[data-move="armcircles"] #armL .anim{animation:spin 0.85s linear infinite}
+  #stage[data-move="armcircles"] #armR .anim{animation:spinRev 0.85s linear infinite}
+  #stage[data-move="armcircles"] #bodyG .anim{animation:bob .42s ease-in-out infinite alternate}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes spinRev{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+
+  /* side steps */
+  #stage[data-move="sidesteps"] #blobAll{animation:stepSlide 1.15s ease-in-out infinite alternate}
+  #stage[data-move="sidesteps"] #footL .anim{animation:legUp .57s ease-in-out infinite alternate}
+  #stage[data-move="sidesteps"] #footR .anim{animation:legUp .57s ease-in-out infinite alternate-reverse}
+  #stage[data-move="sidesteps"] #bodyG .anim{animation:lean 1.15s ease-in-out infinite alternate}
+  @keyframes stepSlide{from{transform:translateX(-30px)}to{transform:translateX(30px)}}
+  @keyframes lean{from{transform:rotate(-3.5deg)}to{transform:rotate(3.5deg)}}
+
+  /* calf raises */
+  #stage[data-move="calfraise"] #blobAll{animation:rise .95s ease-in-out infinite alternate}
+  #stage[data-move="calfraise"] #armL .anim{animation:raiseL .95s ease-in-out infinite alternate}
+  #stage[data-move="calfraise"] #armR .anim{animation:raiseR .95s ease-in-out infinite alternate}
+  @keyframes rise{from{transform:translateY(0)}to{transform:translateY(-13px)}}
+  @keyframes raiseL{from{transform:rotate(-12deg)}to{transform:rotate(-152deg)}}
+  @keyframes raiseR{from{transform:rotate(12deg)}to{transform:rotate(152deg)}}
+
+  /* heel taps */
+  #stage[data-move="heeltaps"] #footL .anim{animation:heelTap .4s ease-in-out infinite alternate}
+  #stage[data-move="heeltaps"] #footR .anim{animation:heelTap .4s ease-in-out infinite alternate-reverse}
+  #stage[data-move="heeltaps"] #armL .anim{animation:swing .4s ease-in-out infinite alternate-reverse}
+  #stage[data-move="heeltaps"] #armR .anim{animation:swing .4s ease-in-out infinite alternate}
+  @keyframes heelTap{from{transform:translateY(0) scale(1)}to{transform:translateY(11px) scale(1.16)}}
+
+  /* shoulder rolls */
+  #stage[data-move="shoulderrolls"] #armL .anim{animation:rollSmall .7s ease-in-out infinite alternate}
+  #stage[data-move="shoulderrolls"] #armR .anim{animation:rollSmall .7s ease-in-out infinite alternate-reverse}
+  #stage[data-move="shoulderrolls"] #bodyG .anim{animation:rollBody .7s ease-in-out infinite alternate}
+  @keyframes rollSmall{from{transform:rotate(13deg) translateY(0)}to{transform:rotate(-13deg) translateY(-4px)}}
+  @keyframes rollBody{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}
+
+  /* shadow boxing */
+  #stage[data-move="boxing"] #armL .anim{animation:punchL .38s ease-in-out infinite alternate}
+  #stage[data-move="boxing"] #armR .anim{animation:punchR .38s ease-in-out infinite alternate-reverse}
+  #stage[data-move="boxing"] #bodyG .anim{animation:bob .38s ease-in-out infinite alternate}
+  @keyframes punchL{from{transform:rotate(-72deg) translateY(0)}to{transform:rotate(-84deg) translateY(-24px)}}
+  @keyframes punchR{from{transform:rotate(-72deg) translateY(-24px)}to{transform:rotate(-84deg) translateY(0)}}
+
+  /* star arms */
+  #stage[data-move="stararms"] #armL .anim{animation:starL .9s ease-in-out infinite alternate}
+  #stage[data-move="stararms"] #armR .anim{animation:starR .9s ease-in-out infinite alternate}
+  #stage[data-move="stararms"] #footL .anim{animation:footOutL .9s ease-in-out infinite alternate}
+  #stage[data-move="stararms"] #footR .anim{animation:footOutR .9s ease-in-out infinite alternate}
+  #stage[data-move="stararms"] #blobAll{animation:hopLite .45s ease-in-out infinite alternate}
+  @keyframes starL{from{transform:rotate(-16deg)}to{transform:rotate(-158deg)}}
+  @keyframes starR{from{transform:rotate(16deg)}to{transform:rotate(158deg)}}
+  @keyframes footOutL{from{transform:translateX(0)}to{transform:translateX(-11px)}}
+  @keyframes footOutR{from{transform:translateX(0)}to{transform:translateX(11px)}}
+  @keyframes hopLite{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+
+  /* side reaches */
+  #stage[data-move="sidereach"] #upper{animation:lean 1.25s ease-in-out infinite alternate;transform-origin:50% 100%}
+  #stage[data-move="sidereach"] #armL .anim{animation:reachL 2.5s ease-in-out infinite}
+  #stage[data-move="sidereach"] #armR .anim{animation:reachR 2.5s ease-in-out infinite}
+  @keyframes reachL{0%,46%,100%{transform:rotate(-6deg)}54%,92%{transform:rotate(-146deg)}}
+  @keyframes reachR{0%,46%,100%{transform:rotate(146deg)}54%,92%{transform:rotate(6deg)}}
+
+  /* balance wobble */
+  #stage[data-move="balance"] #blobAll{animation:wobble 1.05s ease-in-out infinite alternate}
+  #stage[data-move="balance"] #armL .anim{animation:wingL 1.05s ease-in-out infinite alternate}
+  #stage[data-move="balance"] #armR .anim{animation:wingR 1.05s ease-in-out infinite alternate}
+  #stage[data-move="balance"] #footR .anim{transform:translateY(-19px)}
+  #stage[data-move="balance"].switch #footR .anim{transform:translateY(0)}
+  #stage[data-move="balance"].switch #footL .anim{transform:translateY(-19px)}
+  @keyframes wobble{from{transform:rotate(-2.6deg)}to{transform:rotate(2.6deg)}}
+  @keyframes wingL{from{transform:rotate(-88deg)}to{transform:rotate(-104deg)}}
+  @keyframes wingR{from{transform:rotate(88deg)}to{transform:rotate(104deg)}}
+</style>
+</head>
+<body>
+<div class="cloud cloud-a"></div>
+<div class="cloud cloud-b"></div>
+<div class="cloud cloud-c"></div>
+
+<button id="quitBtn" class="round-btn hidden" aria-label="Stop">✕</button>
+
+<div id="app">
+  <header>
+    <div class="wordmark"><span class="num">60</span>-SECOND SWEAT</div>
+    <div class="streak-pill" title="Your day streak"><span class="flame">🔥</span><span id="streakNum">0</span></div>
+  </header>
+
+  <div id="stage" data-mode="home" data-move="">
+    <svg viewBox="0 0 300 300" role="img" aria-label="Your blob coach">
+      <ellipse cx="150" cy="272" rx="86" ry="12" fill="#8FCBEE"/>
+      <rect id="wall" x="272" y="30" width="28" height="238" rx="10" fill="#FFFFFF" opacity="0"/>
+      <g id="blobAll">
+        <rect id="chair" x="88" y="196" width="124" height="66" rx="14" fill="#FFFFFF"/>
+        <g id="upper">
+          <g id="bodyG"><g class="anim">
+            <path d="M62,252 C46,168 72,58 150,54 C228,58 254,168 238,252 C238,267 62,267 62,252 Z"
+                  fill="#F8EBC8" stroke="#C9A877" stroke-width="4"/>
+            <g id="eyes">
+              <circle cx="127" cy="128" r="7.5" fill="#5B4636"/>
+              <circle cx="173" cy="128" r="7.5" fill="#5B4636"/>
+            </g>
+            <ellipse cx="110" cy="147" rx="12" ry="7.5" fill="#F6A8B8" opacity=".65"/>
+            <ellipse cx="190" cy="147" rx="12" ry="7.5" fill="#F6A8B8" opacity=".65"/>
+            <path d="M137,145 Q150,157 163,145" fill="none" stroke="#5B4636" stroke-width="4.5" stroke-linecap="round"/>
+          </g></g>
+          <g id="armL" transform="translate(80,140)"><g class="anim">
+            <rect x="-15" y="-8" width="30" height="94" rx="15" fill="#F8EBC8" stroke="#C9A877" stroke-width="4"/>
+          </g></g>
+          <g id="armR" transform="translate(220,140)"><g class="anim">
+            <rect x="-15" y="-8" width="30" height="94" rx="15" fill="#F8EBC8" stroke="#C9A877" stroke-width="4"/>
+          </g></g>
+        </g>
+        <g id="footL" transform="translate(106,257)"><g class="anim">
+          <ellipse rx="28" ry="13" fill="#F8EBC8" stroke="#C9A877" stroke-width="4"/>
+        </g></g>
+        <g id="footR" transform="translate(194,257)"><g class="anim">
+          <ellipse rx="28" ry="13" fill="#F8EBC8" stroke="#C9A877" stroke-width="4"/>
+        </g></g>
+      </g>
+    </svg>
+  </div>
+
+  <div id="bigNumber" class="hidden">60</div>
+
+  <div id="moveLabel">One button. One minute.</div>
+  <div id="subLabel">Press GO — the blob does a move with you.</div>
+
+  <div id="progressWrap"><div id="progressBar"></div></div>
+
+  <div class="controls">
+    <!-- HOME -->
+    <button id="goBtn" class="big-btn">▶ GO · 60</button>
+
+    <!-- DONE -->
+    <div id="doneBox" class="hidden" style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div class="streak-hero">
+        <div class="flame-big">🔥</div>
+        <div class="streak-num" id="doneStreakNum">1</div>
+        <div class="streak-word">DAY STREAK</div>
+      </div>
+      <a class="door-btn" href="https://justinwayn.github.io/godbod-test-kit/" target="_blank" rel="noopener">
+        Want the full trainer?
+        <span class="door-sub">GodBod does the thinking. Join the free test →</span>
+      </a>
+      <button id="againBtn" class="round-btn" aria-label="Go again">↻</button>
+    </div>
+
+    <!-- QUIT -->
+    <div id="quitBox" class="hidden" style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <button id="retryBtn" class="big-btn">Try Again 💪</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var MOVES = [
+    {id:"march",        label:"March in Place"},
+    {id:"wallpush",     label:"Wall Push-Ups"},
+    {id:"sittostand",   label:"Sit to Stand"},
+    {id:"armcircles",   label:"Arm Circles"},
+    {id:"sidesteps",    label:"Side Steps"},
+    {id:"chairsquat",   label:"Chair Squats"},
+    {id:"kneelifts",    label:"Knee Lifts"},
+    {id:"calfraise",    label:"Calf Raises"},
+    {id:"heeltaps",     label:"Heel Taps"},
+    {id:"shoulderrolls",label:"Shoulder Rolls"},
+    {id:"boxing",       label:"Shadow Boxing"},
+    {id:"stararms",     label:"Star Arms"},
+    {id:"sidereach",    label:"Side Reaches"},
+    {id:"balance",      label:"Balance Wobble"}
+  ];
+  var $ = function(id){ return document.getElementById(id); };
+  var stage=$("stage"), bigNumber=$("bigNumber"), moveLabel=$("moveLabel"), subLabel=$("subLabel"),
+      progressWrap=$("progressWrap"), progressBar=$("progressBar"),
+      goBtn=$("goBtn"), doneBox=$("doneBox"), quitBox=$("quitBox"),
+      quitBtn=$("quitBtn"), againBtn=$("againBtn"), retryBtn=$("retryBtn"),
+      streakNum=$("streakNum"), doneStreakNum=$("doneStreakNum");
+
+  var state="home", timerId=null, endTime=0, lastMoveId=null, wakeLock=null, audioCtx=null;
+
+  /* ---------- streak (localStorage) ---------- */
+  function dayStr(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+  function loadStreak(){
+    try{ return {count:parseInt(localStorage.getItem("sss_streak")||"0",10)||0,
+                  last:localStorage.getItem("sss_lastDay")||""}; }
+    catch(e){ return {count:0,last:""}; }
+  }
+  function recordMinute(){
+    var s=loadStreak(), today=dayStr(new Date());
+    if(s.last!==today){
+      var y=new Date(); y.setDate(y.getDate()-1);
+      s.count = (s.last===dayStr(y)) ? s.count+1 : 1;
+      s.last = today;
+      try{
+        localStorage.setItem("sss_streak",String(s.count));
+        localStorage.setItem("sss_lastDay",today);
+        localStorage.setItem("sss_total",(parseInt(localStorage.getItem("sss_total")||"0",10)+1));
+      }catch(e){}
+    }
+    return s.count;
+  }
+  function showStreak(){ streakNum.textContent = loadStreak().count; }
+
+  /* ---------- tiny sounds ---------- */
+  function beep(freq, dur, delay){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+      var t = audioCtx.currentTime + (delay||0);
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type="sine"; o.frequency.value=freq;
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.18,t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t); o.stop(t+dur+0.05);
+    }catch(e){}
+  }
+
+  /* ---------- screens ---------- */
+  function setMode(mode, moveId){
+    stage.dataset.mode = mode;
+    stage.dataset.move = moveId || "";
+    stage.classList.remove("switch");
+  }
+  function resetChrome(){
+    bigNumber.classList.add("hidden");
+    progressWrap.style.visibility="hidden";
+    quitBtn.classList.add("hidden");
+    goBtn.classList.remove("hidden");
+    doneBox.classList.add("hidden");
+    quitBox.classList.add("hidden");
+  }
+  function goHome(){
+    stopTimer(); releaseWake();
+    state="home"; resetChrome(); setMode("home");
+    moveLabel.textContent="One button. One minute.";
+    subLabel.textContent="Press GO — the blob does a move with you.";
+    showStreak();
+  }
+  function startCountdown(){
+    if(state==="count"||state==="play") return;
+    state="count"; resetChrome();
+    goBtn.classList.add("hidden");
+    setMode("count");
+    moveLabel.textContent="Ready…";
+    subLabel.textContent="";
+    bigNumber.classList.remove("hidden");
+    var n=3;
+    function step(){
+      if(state!=="count") return;
+      if(n===0){ startMove(); return; }
+      bigNumber.textContent=n;
+      bigNumber.classList.remove("pop"); void bigNumber.offsetWidth; bigNumber.classList.add("pop");
+      beep(520+n*60, .12);
+      n--; setTimeout(step, 780);
+    }
+    step();
+  }
+  function startMove(){
+    state="play";
+    var pool = MOVES.filter(function(m){ return m.id!==lastMoveId; });
+    var move = pool[Math.floor(Math.random()*pool.length)];
+    lastMoveId = move.id;
+    setMode("play", move.id);
+    moveLabel.textContent = move.label;
+    subLabel.textContent = "Follow the blob!";
+    quitBtn.classList.remove("hidden");
+    progressWrap.style.visibility="visible";
+    progressBar.style.width="100%";
+    bigNumber.classList.remove("hidden");
+    endTime = Date.now()+60000;
+    requestWake();
+    beep(880,.18);
+    tick();
+    timerId = setInterval(tick, 100);
+  }
+  function tick(){
+    if(state!=="play") return;
+    var left = Math.max(0, endTime - Date.now());
+    var secs = Math.ceil(left/1000);
+    bigNumber.textContent = secs;
+    progressBar.style.width = (left/600)+"%";
+    if(secs===30 && lastMoveId==="balance") stage.classList.add("switch");
+    if(left<=0) finish();
+  }
+  function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
+  function finish(){
+    stopTimer(); releaseWake();
+    state="done"; resetChrome();
+    goBtn.classList.add("hidden");
+    doneBox.classList.remove("hidden");
+    setMode("done");
+    var c = recordMinute();
+    doneStreakNum.textContent=c; showStreak();
+    moveLabel.textContent="You did it! 🎉";
+    subLabel.textContent="One minute. Whole body. Done.";
+    beep(660,.14); beep(880,.14,.13); beep(1180,.3,.26);
+    confetti();
+    if(navigator.vibrate) { try{ navigator.vibrate(60); }catch(e){} }
+  }
+  function quit(){
+    if(state!=="play"&&state!=="count") return;
+    stopTimer(); releaseWake();
+    state="quit"; resetChrome();
+    goBtn.classList.add("hidden");
+    quitBox.classList.remove("hidden");
+    setMode("quit");
+    moveLabel.textContent="The blob believes in you 💛";
+    subLabel.textContent="Every second counted. One more try?";
+  }
+  function confetti(){
+    var colors=["#FFBE0B","#2F9E44","#F6A8B8","#FFFFFF","#E8890C"];
+    for(var i=0;i<38;i++){
+      var d=document.createElement("div");
+      d.className="confetti";
+      d.style.left=(Math.random()*100)+"vw";
+      d.style.width=(7+Math.random()*7)+"px";
+      d.style.height=(9+Math.random()*9)+"px";
+      d.style.background=colors[i%colors.length];
+      d.style.animationDuration=(1.6+Math.random()*1.6)+"s";
+      d.style.animationDelay=(Math.random()*0.35)+"s";
+      document.body.appendChild(d);
+      (function(el){ setTimeout(function(){ el.remove(); }, 4200); })(d);
+    }
+  }
+  function requestWake(){
+    try{ if(navigator.wakeLock) navigator.wakeLock.request("screen").then(function(w){ wakeLock=w; }).catch(function(){}); }catch(e){}
+  }
+  function releaseWake(){ try{ if(wakeLock){ wakeLock.release(); wakeLock=null; } }catch(e){} }
+
+  goBtn.addEventListener("click", startCountdown);
+  againBtn.addEventListener("click", startCountdown);
+  retryBtn.addEventListener("click", startCountdown);
+  quitBtn.addEventListener("click", quit);
+  document.addEventListener("visibilitychange", function(){ if(state==="play") tick(); });
+
+  showStreak();
+  window.__SSS = { start:startCountdown, finish:finish, quit:quit,
+                   state:function(){ return state; }, moves:MOVES };
+})();
+</script>
+</body>
+</html>
